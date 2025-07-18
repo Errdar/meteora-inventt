@@ -1,29 +1,30 @@
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { Jupiter, RouteInfo } from "@jup-ag/core";
 
+export interface AutoBuyOptions {
+  connection: Connection;
+  creatorKeypair: Keypair;
+  tokenMint: string;
+  amountInSOL: number;
+}
+
 /**
- * Auto-buy supply from a newly created bonding curve pool.
+ * Auto-buy supply from a bonding curve using Jupiter swap routes.
  *
  * @param connection - Solana RPC connection
- * @param creatorKeypair - Creator wallet Keypair (must have SOL)
+ * @param creatorKeypair - Wallet Keypair (must have SOL)
  * @param tokenMint - The mint address of the token to buy
- * @param amountInSOL - Amount of SOL to spend on buying supply
+ * @param amountInSOL - Amount of SOL to spend
  */
 export async function autoBuySupply({
   connection,
   creatorKeypair,
   tokenMint,
   amountInSOL,
-}: {
-  connection: Connection;
-  creatorKeypair: Keypair;
-  tokenMint: string;
-  amountInSOL: number;
-}) {
+}: AutoBuyOptions): Promise<void> {
   try {
     console.log(`🚀 Auto-buying ${amountInSOL} SOL worth of token: ${tokenMint}`);
 
-    // Jupiter instance
     const jupiter = await Jupiter.load({
       connection,
       cluster: "mainnet-beta",
@@ -32,7 +33,7 @@ export async function autoBuySupply({
 
     const SOL_MINT = "So11111111111111111111111111111111111111112"; // Wrapped SOL mint
 
-    // Fetch swap routes (SOL -> token)
+    // ✅ Fetch swap routes (SOL -> token)
     const routes = await jupiter.computeRoutes({
       inputMint: new PublicKey(SOL_MINT),
       outputMint: new PublicKey(tokenMint),
@@ -54,7 +55,7 @@ export async function autoBuySupply({
         .join(" -> ")}`
     );
 
-    // Execute swap
+    // ✅ Execute swap
     const { execute } = await jupiter.exchange({ routeInfo: bestRoute });
     const swapResult = await execute();
 
@@ -67,4 +68,3 @@ export async function autoBuySupply({
     console.error("❌ Auto-buy error:", err);
   }
 }
-
