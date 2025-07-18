@@ -1,35 +1,39 @@
-import { autoBuySupply } from "@/lib/autoBuySupply";
-import { Connection, Keypair } from "@solana/web3.js";
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { autoBuySupply } from "./autoBuySupply";
 
-...
-
-if (poolTx.success) {
-  const connection = new Connection(process.env.NEXT_PUBLIC_SOLANA_RPC!);
-  const creatorKeypair = Keypair.fromSecretKey(
-    Uint8Array.from(JSON.parse(process.env.CREATOR_PRIVATE_KEY!))
-  );
-
-  await autoBuySupply({
-    connection,
-    creatorKeypair,
-    tokenMint: poolTx.tokenMint,
-    amountInSOL: 0.5  // <-- change this value as desired
-  });
+interface LaunchTokenOptions {
+  connection: Connection;
+  payer: Keypair;
+  tokenMint: string;
+  vanitySuffix?: string;
+  autoBuyAmountSOL?: number;
 }
 
-import { generateVanityMintSuffix } from "@/lib/vanityMint";
-import { Keypair } from "@solana/web3.js";
+export async function launchToken({
+  connection,
+  payer,
+  tokenMint,
+  vanitySuffix,
+  autoBuyAmountSOL
+}: LaunchTokenOptions) {
+  console.log("🚀 Launching token with mint:", tokenMint);
 
-async function launchToken(options: { vanitySuffix?: string }) {
-  let mintKeypair: Keypair;
-
-  if (options.vanitySuffix && options.vanitySuffix.length > 0) {
-    console.log(`🎯 Generating vanity suffix: ${options.vanitySuffix}`);
-    const vanity = generateVanityMintSuffix(options.vanitySuffix);
-    mintKeypair = Keypair.fromSecretKey(vanity.secretKey);
-  } else {
-    mintKeypair = Keypair.generate();
+  // ✅ If you need a vanity suffix, handle it here
+  if (vanitySuffix) {
+    console.log(`✅ Vanity suffix requested: ${vanitySuffix}`);
+    // You can handle vanity suffix logic here if needed
   }
 
-  // ✅ Now use mintKeypair in the bonding curve creation
+  // ✅ After the pool is created, optionally auto-buy
+  if (autoBuyAmountSOL && autoBuyAmountSOL > 0) {
+    console.log(`🤖 Auto-buying ${autoBuyAmountSOL} SOL worth of supply...`);
+    await autoBuySupply({
+      connection,
+      creatorKeypair: payer,
+      tokenMint,
+      amountInSOL: autoBuyAmountSOL
+    });
+  }
+
+  console.log("✅ Token launch complete!");
 }
