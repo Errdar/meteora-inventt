@@ -1,0 +1,51 @@
+{
+  "name": "meteora-invent",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Meteora Invent - Monorepo for studio scripts and scaffold templates",
+  "author": "@dannweeeee",
+  "license": "ISC",
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "format": "turbo format",
+    "format:check": "turbo format:check",
+    "type-check": "tsc --noEmit -p tsconfig.typecheck.json",
+    "clean": "turbo clean && rm -rf node_modules",
+    "studio": "pnpm --filter @meteora-invent/studio",
+    "scaffold": "pnpm --filter '@meteora-invent/scaffold-*'",
+    "validate-env": "turbo validate-env",
+    "studio:damm-v1": "pnpm --filter @meteora-invent/studio run damm-v1:*",
+    "studio:damm-v2": "pnpm --filter @meteora-invent/studio run damm-v2:*",
+    "studio:dlmm": "pnpm --filter @meteora-invent/studio run dlmm:*",
+    "studio:dbc": "pnpm --filter @meteora-invent/studio run dbc:*",
+    "prepare": "husky install",
+    "syncpack:check": "syncpack list-mismatches",
+    "syncpack:fix": "syncpack fix-mismatches"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "eslint": "^8.57.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0",
+    "prettier": "^3.5.3",
+    "syncpack": "^12.0.0",
+    "turbo": "^2.0.0",
+    "typescript": "^5.0.0"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
+}

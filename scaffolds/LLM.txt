@@ -1,0 +1,193 @@
+# LLM.txt - Meteora Scaffolds
+
+This directory contains production-ready frontend templates for building applications on Meteora protocols.
+
+## Scaffolds Overview
+
+Scaffolds are complete, deployable frontend applications that:
+- Connect to Meteora protocols
+- Provide user interfaces for token operations
+- Include best practices and modern tooling
+- Are fully customizable for your needs
+
+## Available Scaffolds
+
+### Fun Launch (`scaffolds/fun-launch`)
+- **Framework**: Next.js with TypeScript
+- **Features**: Token discovery, trading interface, portfolio tracking
+- **Details**: See `scaffolds/fun-launch/LLM.txt`
+
+## Using Scaffolds
+
+### 1. Choose a Scaffold
+Based on your needs:
+- Token launchpad → fun-launch
+- (More scaffolds coming soon)
+
+### 2. Copy to New Project
+```bash
+# Copy scaffold to your project
+cp -r scaffolds/fun-launch /path/to/your-project
+
+# Or use git
+git clone https://github.com/MeteoraAg/meteora-invent.git
+cp -r meteora-invent/scaffolds/fun-launch your-project
+```
+
+### 3. Install Dependencies
+```bash
+cd your-project
+pnpm install
+```
+
+### 4. Configure Environment
+```bash
+cp .env.example .env
+# Edit .env with your settings
+```
+
+### 5. Run Development Server
+```bash
+pnpm dev
+# Open http://localhost:3000
+```
+
+## Customization Guidelines
+
+### Branding
+- Update logos in `public/` directory
+- Modify color schemes in CSS/Tailwind config
+- Change metadata in `_app.tsx` and `_document.tsx`
+
+### Features
+- Add/remove components as needed
+- Integrate additional protocols
+- Customize trading logic
+
+### Deployment
+- Build for production: `pnpm build`
+- Deploy to Vercel, Netlify, or any static host
+- Ensure environment variables are set
+
+## Scaffold Architecture
+
+### Common Structure
+```
+scaffold/
+├── src/
+│   ├── components/     # Reusable UI components
+│   ├── pages/         # Next.js pages/routes
+│   ├── hooks/         # Custom React hooks
+│   ├── contexts/      # React contexts for state
+│   ├── lib/          # Utility functions
+│   └── types/        # TypeScript definitions
+├── public/           # Static assets
+└── styles/          # Global styles
+```
+
+### Key Technologies
+- **Next.js**: React framework
+- **TypeScript**: Type safety
+- **Tailwind CSS**: Styling
+- **@solana/web3.js**: Blockchain interaction
+- **@meteora-ag SDKs**: Protocol integration
+
+## Integration with Studio
+
+Scaffolds work seamlessly with studio scripts:
+1. Use studio scripts for backend operations
+2. Call script functionality from frontend
+3. Display results in UI
+4. Handle user interactions
+
+Example flow:
+```
+User clicks "Launch Token" → 
+Frontend prepares parameters → 
+Calls DBC launch function → 
+Displays transaction result
+```
+
+## Best Practices
+
+### 1. Security
+- Never expose private keys in frontend
+- Use wallet adapters for signing
+- Validate all user inputs
+- Handle errors gracefully
+
+### 2. Performance
+- Implement proper loading states
+- Cache RPC responses when possible
+- Optimize bundle size
+- Use lazy loading for routes
+
+### 3. User Experience
+- Clear error messages
+- Transaction status updates
+- Responsive design
+- Accessibility features
+
+### 4. Development
+- Keep components modular
+- Write tests for critical paths
+- Document customizations
+- Use TypeScript strictly
+
+## Common Modifications
+
+### Adding New Pages
+1. Create file in `src/pages/`
+2. Export React component
+3. Next.js automatically creates route
+
+### Integrating New Protocols
+1. Install protocol SDK
+2. Create hooks for protocol interaction
+3. Build UI components
+4. Add to relevant pages
+
+### Styling Changes
+1. Modify `tailwind.config.js`
+2. Update global styles in `styles/`
+3. Use Tailwind classes in components
+
+## Deployment Checklist
+
+Before deploying:
+- [ ] Environment variables configured
+- [ ] Build succeeds without errors
+- [ ] All features tested
+- [ ] Performance optimized
+- [ ] Security reviewed
+- [ ] Analytics/monitoring setup
+
+## Troubleshooting
+
+### "Module not found"
+- Run `pnpm install`
+- Check import paths
+- Verify package.json
+
+### "RPC error"
+- Check RPC endpoint in .env
+- Verify network (mainnet/devnet)
+- Consider rate limits
+
+### "Wallet connection failed"
+- Update wallet adapter
+- Check browser compatibility
+- Verify network settings
+
+## Next Steps
+
+1. Choose appropriate scaffold
+2. Customize for your needs
+3. Test thoroughly
+4. Deploy to production
+5. Monitor and iterate
+
+## Related Documentation
+- Parent: Repository root `LLM.txt`
+- Backend scripts: `studio/LLM.txt`
+- Specific scaffold: `scaffolds/fun-launch/LLM.txt`

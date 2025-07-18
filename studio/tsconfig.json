@@ -1,0 +1,12 @@
+{
+  "extends": "@meteora-invent/config/typescript/node",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./dist",
+    "noEmit": false,
+    "composite": true,
+    "strictNullChecks": false
+  },
+  "include": ["**/*.ts", "**/*.js"],
+  "exclude": ["node_modules", "dist"]
+}

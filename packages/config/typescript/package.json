@@ -1,0 +1,14 @@
+{
+  "name": "@meteora-invent/config-typescript",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared TypeScript configuration for Meteora Invent monorepo",
+  "files": [
+    "base.json",
+    "nextjs.json",
+    "node.json"
+  ],
+  "scripts": {
+    "clean": "rm -rf node_modules .turbo"
+  }
+}

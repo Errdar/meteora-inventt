@@ -1,0 +1,204 @@
+# LLM.txt - Meteora Studio
+
+This directory contains AI-automatable scripts for interacting with Meteora protocols on Solana.
+
+## Studio Overview
+
+Studio provides command-line scripts for:
+- Token launches via Dynamic Bonding Curves (DBC)
+- AMM pool creation and management (DAMM V1/V2)
+- Concentrated liquidity positions (DLMM)
+- Pool migrations and advanced operations
+
+## Environment Setup
+
+### 1. Prerequisites
+- Node.js >= 18.0.0
+- TypeScript >= 5.0.0
+- Valid Solana wallet with SOL
+- RPC endpoint (recommended: Helius, QuickNode, or similar)
+
+### 2. Initial Configuration
+```bash
+# From studio directory
+cp .env.example .env
+
+# Edit .env with:
+# - PAYER_PRIVATE_KEY: Your wallet private key (base58 format)
+# - RPC_URL: Your RPC endpoint (optional but recommended)
+```
+
+### 3. Validate Setup
+```bash
+npm run validate-env
+```
+This will verify:
+- RPC connection is active
+- Private key is valid
+- Wallet has SOL balance
+
+## Script Execution Pattern
+
+All scripts follow this pattern:
+1. Run from repository root using pnpm
+2. Scripts are defined in root package.json
+3. Format: `pnpm studio [protocol]-[action]`
+
+Example:
+```bash
+pnpm studio dbc-quick-launch
+pnpm studio damm-v2-create-pool
+pnpm studio dlmm-create-position
+```
+
+## Protocol Navigation
+
+### DBC (Dynamic Bonding Curve) - Token Launches
+- **Key Scripts**: quick-launch, create-config, migrate-pool
+- **Details**: See `studio/dbc/LLM.txt`
+
+### DAMM V1 (Dynamic AMM V1)
+- **Key Scripts**: create-pool, create-position, claim-locked-fees
+- **Details**: See `studio/damm-v1/LLM.txt`
+
+### DAMM V2 (Dynamic AMM V2)
+- **Key Scripts**: create-pool, create-position, claim-fees
+- **Details**: See `studio/damm-v2/LLM.txt`
+
+### DLMM (Dynamic Liquidity Market Maker)
+- **Key Scripts**: create-balanced-position, add-liquidity
+- **Details**: See `studio/dlmm/LLM.txt`
+
+## Common Script Parameters
+
+Most scripts require configuration of variables within the script file:
+
+### Token Parameters
+```typescript
+const tokenParams = {
+  name: 'Token Name',
+  symbol: 'SYMBOL',
+  uri: 'https://metadata-uri.com/token.json',
+  decimals: 9 // Usually 9 for SPL tokens
+};
+```
+
+### Pool Parameters
+```typescript
+const poolParams = {
+  tokenA: new PublicKey('...'), // Token mint address
+  tokenB: new PublicKey('...'), // Usually USDC or SOL
+  initialPrice: 0.001,          // Initial token price
+  feeBps: 30                    // Fee in basis points (0.3%)
+};
+```
+
+### Config Keys
+- Moonshot: `FbKf76ucsQssF7XZBuzScdJfugtsSKwZFYztKsMEhWZM`
+- Custom configs: Create using `create-config` scripts
+
+## Script Modification Guidelines
+
+1. **Locate Variables Section**: Look for "Variables to be configured" comment
+2. **Modify Parameters**: Update only the marked variables
+3. **Keep Structure**: Don't modify imports, connection setup, or execution logic
+4. **Test First**: Use devnet for testing before mainnet
+
+## Common Workflows
+
+### 1. Launch a New Token
+```bash
+# 1. Configure token parameters in script
+# 2. Run launch script
+pnpm studio dbc-quick-launch
+# 3. Note the token mint address from output
+# 4. Verify on explorer
+```
+
+### 2. Create AMM Pool
+```bash
+# 1. Have token mint addresses ready
+# 2. Configure pool parameters
+# 3. Run pool creation
+pnpm studio damm-v2-create-pool
+# 4. Add initial liquidity
+pnpm studio damm-v2-create-position
+```
+
+### 3. Migrate DBC to AMM
+```bash
+# 1. Wait for bonding curve completion
+# 2. Configure migration parameters
+# 3. Run migration script
+pnpm studio dbc-migrate-to-damm-v2
+```
+
+## Error Handling
+
+### Common Errors and Solutions
+
+1. **"PRIVATE_KEY is not set"**
+   - Solution: Add PAYER_PRIVATE_KEY to .env file
+
+2. **"Insufficient SOL balance"**
+   - Solution: Add SOL to wallet or use devnet
+
+3. **"Transaction simulation failed"**
+   - Check RPC connection
+   - Verify all addresses are valid
+   - Ensure sufficient balance for fees
+
+4. **"Config not found"**
+   - Verify config key is correct
+   - Check network (mainnet vs devnet)
+
+## Best Practices
+
+1. **Always Validate First**: Run `npm run validate-env`
+2. **Use Custom RPC**: Public RPCs have rate limits
+3. **Test on Devnet**: Get free SOL from faucet
+4. **Save Output**: Transaction signatures and addresses
+5. **Monitor Transactions**: Use Solana Explorer
+
+## Security Rules
+
+- NEVER expose .env variables
+- NEVER commit private keys
+- NEVER hardcode sensitive data
+- NEVER share transaction details publicly
+- ALWAYS use environment variables
+
+## Network Considerations
+
+- **Mainnet**: Production, real money
+- **Devnet**: Testing, free SOL available
+- **Local**: For development only
+
+## Files Never to Edit
+- .env (only copy from .example)
+- .gitignore
+- package.json (unless adding dependencies)
+- Any file outside marked configuration sections
+
+## Debugging Steps
+
+1. Run `npm run validate-env`
+2. Check error messages carefully
+3. Verify all addresses on explorer
+4. Ensure RPC is not rate-limited
+5. Check wallet balance and fees
+
+## Next Steps
+
+Based on your goal:
+- Token launch → `dbc/LLM.txt`
+- AMM pools with vault yield → `damm-v1/LLM.txt`
+- AMM pools with advanced features → `damm-v2/LLM.txt`
+- Concentrated liquidity → `dlmm/LLM.txt`
+
+## Additional Resources
+
+- Script READMEs in each protocol folder
+- Meteora SDK documentation
+- Solana Web3.js documentation
+- Example transactions on explorer

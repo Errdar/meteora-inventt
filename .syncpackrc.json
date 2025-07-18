@@ -1,0 +1,36 @@
+{
+  "versionGroups": [
+    {
+      "label": "Use workspace protocol for internal packages",
+      "dependencies": ["@meteora-invent/**"],
+      "dependencyTypes": ["dev", "prod", "peer"],
+      "pinVersion": "workspace:*"
+    }
+  ],
+  "semverGroups": [
+    {
+      "range": "^",
+      "dependencies": ["**"],
+      "packages": ["**"]
+    }
+  ],
+  "sortFirst": [
+    "name",
+    "version",
+    "private",
+    "description",
+    "author",
+    "license",
+    "main",
+    "scripts",
+    "dependencies",
+    "devDependencies",
+    "peerDependencies"
+  ],
+  "sortAz": [
+    "scripts",
+    "dependencies",
+    "devDependencies",
+    "peerDependencies"
+  ]
+}

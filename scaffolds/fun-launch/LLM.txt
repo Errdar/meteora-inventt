@@ -1,0 +1,356 @@
+# LLM.txt - Fun Launch Scaffold
+
+This scaffold provides a production-ready launchpad interface for token launches using Meteora protocols.
+
+## Fun Launch Overview
+
+Fun Launch is a Next.js application that enables:
+- Token discovery and exploration
+- Real-time trading interface
+- Portfolio tracking
+- Integration with Meteora DBC and AMM protocols
+- Mobile-responsive design
+
+## Project Structure
+
+```
+fun-launch/
+├── src/
+│   ├── components/        # UI components
+│   │   ├── Token/        # Token-related components
+│   │   ├── Table/        # Data tables
+│   │   ├── Terminal/     # Trading terminal
+│   │   └── ui/           # Base UI components
+│   ├── pages/            # Next.js routes
+│   │   ├── index.tsx     # Home/explore page
+│   │   ├── token/        # Token detail pages
+│   │   └── create-pool   # Pool creation
+│   ├── contexts/         # React contexts
+│   ├── hooks/           # Custom hooks
+│   ├── lib/             # Utilities
+│   └── types/           # TypeScript types
+├── public/              # Static assets
+└── styles/             # Global styles
+```
+
+## Quick Start
+
+### 1. Setup Environment
+```bash
+# Copy environment template
+cp .env.example .env
+
+# Required variables:
+NEXT_PUBLIC_RPC_URL=your_rpc_endpoint
+NEXT_PUBLIC_NETWORK=mainnet-beta
+```
+
+### 2. Install and Run
+```bash
+# Install dependencies
+pnpm install
+
+# Run development server
+pnpm dev
+
+# Build for production
+pnpm build
+```
+
+### 3. Access Application
+- Development: http://localhost:3000
+- View token explorer
+- Connect wallet to trade
+
+## Key Features
+
+### Token Explorer
+- **Location**: `src/pages/index.tsx`
+- **Components**: `TokenTable`, `ExploreProvider`
+- **Features**:
+  - Real-time token listings
+  - Sort by age, volume, market cap
+  - Filter by various criteria
+  - Search functionality
+
+### Token Detail Page
+- **Location**: `src/pages/token/[address].tsx`
+- **Components**: `TokenHeader`, `TokenChart`, `Terminal`
+- **Features**:
+  - Price charts
+  - Trading interface
+  - Token information
+  - Social links
+
+### Trading Terminal
+- **Location**: `src/components/Terminal/`
+- **Features**:
+  - Buy/sell interface
+  - Slippage settings
+  - Transaction preview
+  - Wallet integration
+
+### Pool Creation
+- **Location**: `src/pages/create-pool.tsx`
+- **Component**: `CreatePoolButton`
+- **Integration**: Uses studio DBC scripts
+
+## Customization Guide
+
+### 1. Branding
+```typescript
+// Update in src/components/Header.tsx
+const SITE_NAME = "Your Launchpad";
+const LOGO_URL = "/your-logo.svg";
+
+// Colors in tailwind.config.js
+theme: {
+  extend: {
+    colors: {
+      primary: '#your-color',
+      secondary: '#your-color'
+    }
+  }
+}
+```
+
+### 2. Add Custom Pages
+```typescript
+// Create src/pages/your-page.tsx
+export default function YourPage() {
+  return (
+    <div>
+      {/* Your content */}
+    </div>
+  );
+}
+```
+
+### 3. Modify Token Table
+```typescript
+// Edit src/components/TokenTable/index.tsx
+// Add custom columns, filters, or sorting
+```
+
+### 4. Custom Integrations
+```typescript
+// Add to src/hooks/
+export function useYourProtocol() {
+  // Protocol integration logic
+}
+```
+
+## Component Reference
+
+### Core Components
+
+#### TokenCard
+```typescript
+<TokenCard
+  token={tokenData}
+  onClick={handleClick}
+  showChart={true}
+/>
+```
+
+#### Terminal
+```typescript
+<Terminal
+  tokenAddress={address}
+  poolAddress={pool}
+  onSwap={handleSwap}
+/>
+```
+
+#### TokenChart
+```typescript
+<TokenChart
+  data={priceData}
+  interval="5m"
+  height={400}
+/>
+```
+
+### Contexts
+
+#### DataStreamProvider
+- Real-time price updates
+- WebSocket connections
+- Market data streaming
+
+#### ExploreProvider
+- Token list management
+- Filtering and sorting
+- Search functionality
+
+#### TokenChartProvider
+- Chart data management
+- Time interval handling
+- Technical indicators
+
+## Integration Points
+
+### With Studio Scripts
+
+#### Launch Token
+```typescript
+// Uses studio/dbc/quick-launch
+const launchToken = async (params) => {
+  // Prepare parameters
+  // Call DBC SDK
+  // Handle transaction
+};
+```
+
+#### Create Pool
+```typescript
+// Uses studio/damm-v2/create-pool
+const createPool = async (tokenA, tokenB) => {
+  // Configure pool
+  // Execute creation
+  // Navigate to pool
+};
+```
+
+### With External Services
+
+#### Price Data
+- Jupiter Price API
+- Birdeye API
+- Custom price feeds
+
+#### Token Metadata
+- Solana Token List
+- On-chain metadata
+- IPFS/Arweave
+
+## Common Customizations
+
+### 1. Add New Launchpad
+```typescript
+// In src/icons/
+export const YourLaunchpadIcon = () => <svg>...</svg>;
+
+// In token display logic
+if (token.launchpad === 'your-launchpad') {
+  return <YourLaunchpadIcon />;
+}
+```
+
+### 2. Custom Filters
+```typescript
+// In ExploreProvider
+const customFilter = (token) => {
+  return token.customProperty === desiredValue;
+};
+```
+
+### 3. Modified Trading Logic
+```typescript
+// In Terminal component
+const customSwapLogic = async () => {
+  // Pre-swap checks
+  // Execute swap
+  // Post-swap actions
+};
+```
+
+## Performance Optimization
+
+### 1. Data Fetching
+- Use SWR for caching
+- Implement pagination
+- Optimize WebSocket usage
+
+### 2. Rendering
+- Virtualize long lists
+- Lazy load components
+- Optimize images
+
+### 3. Bundle Size
+- Tree-shake imports
+- Code split routes
+- Minimize dependencies
+
+## Deployment
+
+### Vercel (Recommended)
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel
+
+# Set environment variables in Vercel dashboard
+```
+
+### Other Platforms
+- Netlify
+- AWS Amplify
+- Cloudflare Pages
+- Self-hosted with Node.js
+
+## Troubleshooting
+
+### "Failed to fetch tokens"
+- Check RPC endpoint
+- Verify network setting
+- Check API rate limits
+
+### "Wallet connection issues"
+- Update wallet adapter
+- Check network compatibility
+- Clear browser cache
+
+### "Chart not loading"
+- Verify price feed API
+- Check data format
+- Review console errors
+
+## Advanced Features
+
+### Real-time Updates
+- WebSocket integration
+- Live price updates
+- Transaction notifications
+
+### Analytics Integration
+```typescript
+// Add to _app.tsx
+import { Analytics } from '@vercel/analytics/react';
+
+<Analytics />
+```
+
+### SEO Optimization
+```typescript
+// In pages, add meta tags
+import Head from 'next/head';
+
+<Head>
+  <title>Token Name - Your Launchpad</title>
+  <meta name="description" content="..." />
+</Head>
+```
+
+## Best Practices
+
+1. **State Management**: Use contexts sparingly
+2. **Error Handling**: Show user-friendly messages
+3. **Loading States**: Always indicate loading
+4. **Mobile First**: Design for mobile screens
+5. **Accessibility**: Include ARIA labels
+
+## Next Steps
+
+1. Customize branding and styling
+2. Add desired features
+3. Test thoroughly on all devices
+4. Set up monitoring
+5. Deploy to production
+
+## Related Documentation
+- Parent: `scaffolds/LLM.txt`
+- Studio integration: `studio/LLM.txt`
+- DBC protocols: `studio/dbc/LLM.txt`

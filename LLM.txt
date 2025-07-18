@@ -1,0 +1,133 @@
+# LLM.txt - Meteora Invent Repository
+
+This repository provides AI-automatable tools for token launches and liquidity management on Solana using Meteora protocols.
+
+## Repository Overview
+
+Meteora Invent is a monorepo containing:
+- **studio/**: Scripts for interacting with Meteora protocols
+- **scaffolds/**: Production-ready frontend templates
+- **packages/**: Shared configurations and utilities
+
+## AI Navigation Guide
+
+### Quick Task Mapping
+- "Launch a new token" → `studio/dbc/LLM.txt`
+- "Create liquidity pool" → `studio/damm-v2/LLM.txt`
+- "Manage liquidity positions" → `studio/dlmm/LLM.txt`
+- "Build a launchpad UI" → `scaffolds/fun-launch/LLM.txt`
+- "Migrate from bonding curve to AMM" → `studio/dbc/migrate-pool/`
+
+### Protocol Selection Guide
+1. **DBC (Dynamic Bonding Curve)**: For new token launches with price discovery
+2. **DAMM V1**: Constant product AMM with Dynamic Vault integration
+3. **DAMM V2**: Constant product AMM with position NFTs and advanced features
+4. **DLMM**: Concentrated liquidity pools with dynamic fees
+
+## Global Setup Requirements
+
+1. **Prerequisites**:
+   - Node.js >= 18.0.0
+   - pnpm >= 9.0.0
+   - Solana wallet with SOL for transactions
+
+2. **Initial Setup**:
+   ```bash
+   # Clone repository
+   git clone https://github.com/MeteoraAg/meteora-invent.git
+   cd meteora-invent
+   
+   # Install dependencies
+   pnpm install
+   
+   # Build all packages
+   pnpm build
+   ```
+
+3. **Environment Configuration**:
+   - Each workspace has its own `.env.example`
+   - Copy to `.env` and configure before use
+   - See specific LLM.txt files for workspace-specific setup
+
+## Repository Structure
+
+```
+meteora-invent/
+├── LLM.txt (this file)
+├── studio/
+│   ├── LLM.txt (studio overview and script execution)
+│   ├── dbc/
+│   │   └── LLM.txt (Dynamic Bonding Curve protocols)
+│   ├── damm-v1/
+│   │   └── LLM.txt (Dynamic AMM V1 protocols)
+│   ├── damm-v2/
+│   │   └── LLM.txt (Dynamic AMM V2 protocols)
+│   └── dlmm/
+│       └── LLM.txt (Dynamic Liquidity Market Maker)
+├── scaffolds/
+│   ├── LLM.txt (scaffold overview)
+│   └── fun-launch/
+│       └── LLM.txt (launchpad template guide)
+└── packages/
+    └── LLM.txt (shared packages info)
+```
+
+## Common Workflows
+
+### 1. Token Launch Workflow
+1. Navigate to `studio/dbc/LLM.txt` for bonding curve launch
+2. Configure token parameters
+3. Execute launch script
+4. Monitor on Solana explorer
+5. Optional: Migrate to AMM when ready
+
+### 2. Liquidity Pool Creation
+1. Choose protocol (usually DAMM V2)
+2. Navigate to respective LLM.txt
+3. Configure pool parameters
+4. Create pool
+5. Add initial liquidity
+
+### 3. Frontend Development
+1. Navigate to `scaffolds/fun-launch/LLM.txt`
+2. Copy scaffold to new project
+3. Configure environment
+4. Customize UI/UX
+5. Deploy to hosting service
+
+## AI Automation Guidelines
+
+When automating tasks:
+1. Always validate environment first (`npm run validate-env` in studio)
+2. Check wallet balance before operations
+3. Use testnet/devnet for testing
+4. Confirm transaction signatures on explorer
+5. Follow the specific LLM.txt for detailed parameters
+
+## Security Considerations
+
+- NEVER commit `.env` files
+- NEVER hardcode private keys
+- Always use environment variables
+- Validate all user inputs
+- Use appropriate RPC endpoints (not public for production)
+
+## Network Information
+
+- Mainnet: Production environment
+- Devnet: Development testing (free SOL from faucet)
+- Testnet: Integration testing
+
+## Next Steps
+
+Based on your task, navigate to:
+- `studio/LLM.txt` for script execution
+- `scaffolds/LLM.txt` for UI development
+- Protocol-specific LLM.txt for detailed operations
+
+## Support Resources
+
+- Meteora Docs: https://docs.meteora.ag
+- SDK Documentation: Check respective package README
+- Solana Explorer: https://explorer.solana.com
+- Jupiter Aggregator: https://jup.ag

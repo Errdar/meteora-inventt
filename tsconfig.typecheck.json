@@ -1,0 +1,34 @@
+{
+  "extends": "@meteora-invent/config/typescript/base",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@meteora-invent/config/*": ["./packages/config/*"],
+      "@meteora-invent/studio": ["./studio"],
+      "@meteora-invent/scaffold/*": ["./scaffolds/*"],
+      "@/*": ["./scaffolds/fun-launch/src/*"]
+    },
+    "noEmit": true,
+    "composite": false,
+    "skipLibCheck": true,
+    "jsx": "react-jsx",
+    "lib": ["dom", "dom.iterable", "es6"],
+    "allowJs": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": [
+    "packages/**/*.ts",
+    "packages/**/*.tsx", 
+    "scaffolds/**/*.ts",
+    "scaffolds/**/*.tsx",
+    "studio/**/*.ts",
+    "studio/**/*.tsx"
+  ],
+  "exclude": ["node_modules", "dist", "build", ".next", ".turbo"]
+}

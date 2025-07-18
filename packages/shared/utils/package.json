@@ -1,0 +1,28 @@
+{
+  "name": "@meteora-invent/shared-utils",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared utility functions for Meteora Invent monorepo",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "clean": "rm -rf node_modules .turbo dist",
+    "lint": "eslint . --ext .ts,.js",
+    "lint:fix": "eslint . --ext .ts,.js --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "bn.js": "^5.2.2",
+    "decimal.js": "^10.5.0"
+  },
+  "devDependencies": {
+    "@meteora-invent/config-eslint": "workspace:*",
+    "@meteora-invent/config-prettier": "workspace:*",
+    "@meteora-invent/config-typescript": "workspace:*",
+    "@types/bn.js": "^5.1.5",
+    "eslint": "^8.57.0",
+    "typescript": "^5.0.0"
+  }
+}
