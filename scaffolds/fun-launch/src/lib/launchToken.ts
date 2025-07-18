@@ -21,4 +21,22 @@ export async function launchToken(options: LaunchTokenOptions): Promise<void> {
 
   console.log("🚀 Launching token with mint:", tokenMint);
 
-  // ✅ If
+  // ✅ If a vanity suffix was requested, handle it here
+  if (vanitySuffix) {
+    console.log(`✅ Vanity suffix requested: ${vanitySuffix}`);
+    // NOTE: actual vanity suffix generation would happen during mint creation
+  }
+
+  // ✅ Optionally auto-buy from bonding curve
+  if (autoBuyAmountSOL && autoBuyAmountSOL > 0) {
+    console.log(`🤖 Auto-buying ${autoBuyAmountSOL} SOL worth of supply...`);
+    await autoBuySupply({
+      connection,
+      creatorKeypair: payer,
+      tokenMint,
+      amountInSOL: autoBuyAmountSOL,
+    });
+  }
+
+  console.log("✅ Token launch complete!");
+}
