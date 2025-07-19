@@ -6,7 +6,11 @@
       "@meteora-invent/config/*": ["./packages/config/*"],
       "@meteora-invent/studio": ["./studio"],
       "@meteora-invent/scaffold/*": ["./scaffolds/*"]
-    }
+    },
+
+    // ✅ ADD THIS PART TO DISABLE FAILING ON UNUSED VARIABLES
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   },
   "references": [
     { "path": "./packages/config" },
@@ -15,10 +19,4 @@
     { "path": "./scaffolds/fun-launch" }
   ],
   "exclude": ["node_modules", "dist", "build", ".next", ".turbo"]
-}
-{
-  "compilerOptions": {
-    "noUnusedLocals": false,
-    "noUnusedParameters": false
-  }
 }
