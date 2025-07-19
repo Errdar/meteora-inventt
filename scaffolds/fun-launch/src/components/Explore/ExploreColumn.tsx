@@ -76,12 +76,9 @@ const TokenCardListContainer: React.FC<TokenCardListContainerProps> = memo(
     const [snapshotData, setSnapshotData] = useState<Pool[]>();
 
     const handleMouseEnter = useCallback(() => {
-      if (!isHoverableDevice() || status !== 'success') {
-        return;
-      }
+      if (!isHoverableDevice() || status !== 'success') return;
 
-      // When clicking elements (copyable) it triggers mouse enter again
-      // We don't want to re-snapshot data if already paused
+      // Only snapshot once
       if (!isPaused) {
         setSnapshotData(currentData?.pools);
       }
@@ -90,11 +87,10 @@ const TokenCardListContainer: React.FC<TokenCardListContainerProps> = memo(
 
     const handleMouseLeave = useCallback(() => {
       if (!isHoverableDevice()) return;
-
       setIsPaused(false);
     }, [setIsPaused]);
 
-    // Mutate the args so stream sorts by timeframe
+    // ✅ FIXED: always return a valid structure
     useEffect(() => {
       queryClient.setQueriesData(
         {
@@ -102,33 +98,24 @@ const TokenCardListContainer: React.FC<TokenCardListContainerProps> = memo(
           queryKey: ApeQueries.gemsTokenList(request).queryKey,
         },
         (prev?: QueryData<typeof ApeQueries.gemsTokenList>) => {
-          const prevPools = prev?.[tab]?.pools;
-          if (!prevPools) return;
+          const prevPools = prev?.[tab]?.pools ?? [];
 
           const pools = [...prevPools];
 
-          // Re-sort
+          // Re-sort safely
           const sortDir = categorySortDir(tab);
-          let sortBy: TokenListSortByField | undefined;
           const defaultSortBy = categorySortBy(tab, timeframe);
-          if (defaultSortBy) {
-            sortBy = normalizeSortByField(defaultSortBy);
-          }
+          const sortBy = defaultSortBy ? normalizeSortByField(defaultSortBy) : undefined;
+
           if (sortBy) {
-            const sorter = createPoolSorter(
-              {
-                sortBy,
-                sortDir,
-              },
-              timeframe
-            );
+            const sorter = createPoolSorter({ sortBy, sortDir }, timeframe);
             pools.sort(sorter);
           }
 
           return {
             ...prev,
             [tab]: {
-              ...prev[tab],
+              ...(prev?.[tab] ?? {}),
               pools,
             },
             args: {
@@ -146,7 +133,6 @@ const TokenCardListContainer: React.FC<TokenCardListContainerProps> = memo(
       const top = listRef.current.getBoundingClientRect().top;
 
       if (top <= 0) {
-        // Only snapshot on initial pause
         if (!isPaused) {
           setSnapshotData(currentData?.pools);
         }
@@ -156,12 +142,11 @@ const TokenCardListContainer: React.FC<TokenCardListContainerProps> = memo(
       }
     }, [currentData?.pools, isPaused, setIsPaused, isMobile]);
 
-    // Handle scroll pausing on mobile
+    // Scroll pause on mobile
     useEffect(() => {
       if (!isMobile) return;
 
-      // Initial check
-      handleScroll();
+      handleScroll(); // initial check
 
       window.addEventListener('scroll', handleScroll, { passive: true });
       return () => {
@@ -170,16 +155,13 @@ const TokenCardListContainer: React.FC<TokenCardListContainerProps> = memo(
       };
     }, [isMobile, setIsPaused, handleScroll]);
 
-    // Map snapshot data to current data for most recent updated data
+    // Merge snapshot + live data
     const displayData = isPaused
       ? snapshotData?.map((snapshotPool) => {
           const current = currentData?.pools.find(
             (p) => p.baseAsset.id === snapshotPool.baseAsset.id
           );
-          if (current) {
-            return current;
-          }
-          return snapshotPool;
+          return current ?? snapshotPool;
         })
       : currentData?.pools;
 
