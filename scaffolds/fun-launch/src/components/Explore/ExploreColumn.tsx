@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { categorySortBy, categorySortDir, createPoolSorter } from '@/components/Explore/pool-utils';
 import { ApeQueries, GemsTokenListQueryArgs, QueryData } from '@/components/Explore/queries';
-import { ExploreTab, TokenListSortByField, normalizeSortByField } from '@/components/Explore/types';
+import { ExploreTab, normalizeSortByField } from '@/components/Explore/types';  // ✅ Removed unused TokenListSortByField
 import { TokenCardList } from '@/components/TokenCard/TokenCardList';
 import { useExploreGemsTokenList } from '@/hooks/useExploreGemsTokenList';
 import { EXPLORE_FIXED_TIMEFRAME, useExplore } from '@/contexts/ExploreProvider';
@@ -90,7 +90,7 @@ const TokenCardListContainer: React.FC<TokenCardListContainerProps> = memo(
       setIsPaused(false);
     }, [setIsPaused]);
 
-    // ✅ FIXED: always return a valid structure
+    // ✅ FIXED: always return a valid structure, even if prev is undefined
     useEffect(() => {
       queryClient.setQueriesData(
         {
