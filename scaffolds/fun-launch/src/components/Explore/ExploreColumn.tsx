@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { categorySortBy, categorySortDir, createPoolSorter } from '@/components/Explore/pool-utils';
 import { ApeQueries, GemsTokenListQueryArgs, QueryData } from '@/components/Explore/queries';
-import { ExploreTab, normalizeSortByField } from '@/components/Explore/types';  // ✅ Removed unused TokenListSortByField
+import { ExploreTab, normalizeSortByField } from '@/components/Explore/types'; 
 import { TokenCardList } from '@/components/TokenCard/TokenCardList';
 import { useExploreGemsTokenList } from '@/hooks/useExploreGemsTokenList';
 import { EXPLORE_FIXED_TIMEFRAME, useExplore } from '@/contexts/ExploreProvider';
@@ -90,7 +90,7 @@ const TokenCardListContainer: React.FC<TokenCardListContainerProps> = memo(
       setIsPaused(false);
     }, [setIsPaused]);
 
-    // ✅ FIXED: always return a valid structure, even if prev is undefined
+    // ✅ FIX: always return a valid structure, even if prev is undefined
     useEffect(() => {
       queryClient.setQueriesData(
         {
@@ -142,13 +142,17 @@ const TokenCardListContainer: React.FC<TokenCardListContainerProps> = memo(
       }
     }, [currentData?.pools, isPaused, setIsPaused, isMobile]);
 
-    // Scroll pause on mobile
+    // ✅ FIXED scroll pause effect – always returns a valid value
     useEffect(() => {
-      if (!isMobile) return;
+      if (!isMobile) {
+        // Explicitly return undefined so TS knows this branch is valid
+        return undefined;
+      }
 
-      handleScroll(); // initial check
+      handleScroll(); // initial check for mobile
 
       window.addEventListener('scroll', handleScroll, { passive: true });
+
       return () => {
         window.removeEventListener('scroll', handleScroll);
         setIsPaused(false);
