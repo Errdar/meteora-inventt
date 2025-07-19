@@ -8,8 +8,8 @@ const nextConfig = {
     // ✅ Still check TypeScript errors
     ignoreBuildErrors: false,
   },
-  reactStrictMode: true,
-  swcMinify: true,
+  reactStrictMode: true
+  // ❌ Removed swcMinify (deprecated in Next.js 15+)
 };
 
 module.exports = nextConfig;
