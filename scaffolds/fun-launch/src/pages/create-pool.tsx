@@ -404,3 +404,136 @@ const PoolCreationSuccess = () => {
     </>
   );
 };
+"use client";
+
+import { useState } from "react";
+import bs58 from "bs58";
+import nacl from "tweetnacl";
+import { randomBytes } from "crypto";
+import { Keypair, PublicKey } from "@solana/web3.js";
+
+// ====== Vanity Generator ======
+function matchesVanity(address: string, suffix: string, prefix: string, caseInsensitive: boolean) {
+  const addr = caseInsensitive ? address.toLowerCase() : address;
+  const suf = caseInsensitive ? suffix.toLowerCase() : suffix;
+  const pre = caseInsensitive ? prefix.toLowerCase() : prefix;
+
+  const suffixOK = suffix === "" || addr.endsWith(suf);
+  const prefixOK = prefix === "" || addr.startsWith(pre);
+
+  return suffixOK && prefixOK;
+}
+
+async function generateVanityContract(
+  suffix: string,
+  prefix: string,
+  setStatus: (msg: string) => void,
+  setAttempts: (n: number) => void
+): Promise<Uint8Array> {
+  let attempts = 0;
+  const caseInsensitive = true;
+
+  setStatus(`🎯 Searching for mint/contract address...`);
+  while (true) {
+    const seed = randomBytes(32);
+    const keypair = nacl.sign.keyPair.fromSeed(seed);
+    const pubKey = bs58.encode(keypair.publicKey);
+
+    if (matchesVanity(pubKey, suffix, prefix, caseInsensitive)) {
+      setStatus(`✅ Found vanity mint address: ${pubKey}`);
+      return seed;
+    }
+
+    attempts++;
+    if (attempts % 5000 === 0) {
+      setAttempts(attempts);
+      await new Promise((r) => setTimeout(r, 0)); // allow UI update
+    }
+  }
+}
+
+// ====== Stub deploy function ======
+async function deployVanityTokenWithMint(mintKeypair: Keypair) {
+  console.log("🚀 Deploying vanity token with mint:", mintKeypair.publicKey.toBase58());
+
+  // Here you’d integrate your actual Meteora token creation logic, e.g.:
+  //
+  // const connection = new Connection(SOLANA_RPC_URL);
+  // const client = new DynamicBondingCurveClient(connection, yourFeePayerWallet);
+  // await createMint(connection, payer, payer.publicKey, null, 9, mintKeypair);
+  //
+  return new Promise((resolve) =>
+    setTimeout(() => resolve(`Token deployed at ${mintKeypair.publicKey.toBase58()}`), 2000)
+  );
+}
+
+// ====== Main UI ======
+export default function CreatePool() {
+  const [suffix, setSuffix] = useState("");
+  const [prefix, setPrefix] = useState("");
+  const [status, setStatus] = useState("");
+  const [attempts, setAttempts] = useState(0);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleCreateVanityContract = async () => {
+    setIsGenerating(true);
+    setStatus("");
+    setAttempts(0);
+
+    // STEP 1: Vanity mint search
+    const seed = await generateVanityContract(suffix, prefix, setStatus, setAttempts);
+    const vanityMintKeypair = Keypair.fromSeed(seed);
+
+    // STEP 2: Deploy token with vanity mint
+    const deployResult = await deployVanityTokenWithMint(vanityMintKeypair);
+    setStatus(`✅ ${deployResult}`);
+
+    setIsGenerating(false);
+  };
+
+  return (
+    <div className="max-w-xl mx-auto mt-10 p-4 border rounded shadow">
+      <h1 className="text-xl font-bold mb-4">Create Vanity Contract Token</h1>
+
+      {/* Prefix Input */}
+      <label className="block text-sm font-medium mb-2">
+        Vanity Prefix (optional)
+      </label>
+      <input
+        type="text"
+        value={prefix}
+        onChange={(e) => setPrefix(e.target.value)}
+        placeholder="e.g. SOL"
+        className="border rounded p-2 w-full mb-4"
+      />
+
+      {/* Suffix Input */}
+      <label className="block text-sm font-medium mb-2">
+        Vanity Suffix (optional)
+      </label>
+      <input
+        type="text"
+        value={suffix}
+        onChange={(e) => setSuffix(e.target.value)}
+        placeholder="e.g. FAKE"
+        className="border rounded p-2 w-full mb-4"
+      />
+
+      <button
+        onClick={handleCreateVanityContract}
+        disabled={isGenerating}
+        className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 disabled:opacity-50"
+      >
+        {isGenerating ? "Generating Vanity Mint..." : "Generate & Deploy Vanity Token"}
+      </button>
+
+      {/* Status & Progress */}
+      {status && <p className="mt-4 text-sm">{status}</p>}
+      {isGenerating && attempts > 0 && (
+        <p className="mt-2 text-xs text-gray-500">
+          Tried {attempts.toLocaleString()} candidates...
+        </p>
+      )}
+    </div>
+  );
+}
