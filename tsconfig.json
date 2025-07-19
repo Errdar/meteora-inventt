@@ -16,3 +16,9 @@
   ],
   "exclude": ["node_modules", "dist", "build", ".next", ".turbo"]
 }
+{
+  "compilerOptions": {
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  }
+}
