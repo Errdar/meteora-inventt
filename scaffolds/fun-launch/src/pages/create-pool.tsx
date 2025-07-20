@@ -247,15 +247,21 @@ export default function CreatePoolPage() {
         <main className="container mx-auto px-4 py-10">
           <h1 className="text-4xl font-bold mb-6">Create Pool</h1>
           {!poolCreated ? (
-            <form onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}>
-              {/* form fields... */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                form.handleSubmit();
+              }}
+            >
+              {/* Add your form fields here */}
+              {/* Replace missing SubmitButton */}
               <SubmitButton isSubmitting={isLoading} />
             </form>
           ) : (
             <PoolCreationSuccess />
           )}
 
-          {/* Add vanity generator below */}
+          {/* Vanity generator */}
           <VanityMintGenerator />
         </main>
       </div>
@@ -263,4 +269,37 @@ export default function CreatePoolPage() {
   );
 }
 
-// Reuse SubmitButton + PoolCreationSuccess same as before...
+// ========================
+// FIXED MISSING COMPONENTS
+// ========================
+
+// ✅ Simple SubmitButton so build doesn’t fail
+function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
+  return (
+    <button
+      type="submit"
+      disabled={isSubmitting}
+      className="mt-4 px-6 py-2 rounded bg-blue-600 text-white disabled:opacity-50"
+    >
+      {isSubmitting ? "Creating Pool..." : "Create Pool"}
+    </button>
+  );
+}
+
+// ✅ Simple success UI so it doesn’t crash
+function PoolCreationSuccess() {
+  return (
+    <div className="mt-6 p-4 border rounded text-center">
+      <h2 className="text-2xl font-bold mb-2">✅ Pool Created Successfully!</h2>
+      <p className="text-sm text-gray-300">
+        Your pool has been created and deployed on Solana.
+      </p>
+      <Link
+        href="/"
+        className="inline-block mt-4 px-4 py-2 bg-green-600 rounded text-white hover:bg-green-700"
+      >
+        Go back to Dashboard
+      </Link>
+    </div>
+  );
+}
