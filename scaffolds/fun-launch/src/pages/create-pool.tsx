@@ -9,10 +9,12 @@ import Header from "../components/Header";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 
-// ✅ Force Vercel to NOT prerender (avoids SSR build issues)
+// ✅ Tell Vercel/Next.js: NO prerendering or caching
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
 
-// ✅ Lazy load Solana + crypto libs on client only
+// ✅ Lazy-load crypto + Solana deps only in browser
 let Keypair: any;
 let Transaction: any;
 let bs58: any;
@@ -20,7 +22,7 @@ let nacl: any;
 let randomBytes: any;
 
 // =============================
-// FORM VALIDATION
+// FORM VALIDATION SCHEMA
 // =============================
 const poolSchema = z.object({
   tokenName: z.string().min(3, "Token name must be at least 3 characters"),
@@ -39,7 +41,7 @@ interface FormValues {
 }
 
 // =============================
-// BROWSER-ONLY HELPER LOADER
+// LOAD BROWSER-ONLY CRYPTO LIBS
 // =============================
 async function loadCryptoDeps() {
   if (!Keypair) {
@@ -52,7 +54,7 @@ async function loadCryptoDeps() {
   }
 }
 
-// Vanity match
+// ✅ Vanity check helper
 function matchesVanity(address: string, suffix: string, prefix: string, caseInsensitive: boolean) {
   const addr = caseInsensitive ? address.toLowerCase() : address;
   const suf = caseInsensitive ? suffix.toLowerCase() : suffix;
@@ -60,7 +62,7 @@ function matchesVanity(address: string, suffix: string, prefix: string, caseInse
   return (suffix === "" || addr.endsWith(suf)) && (prefix === "" || addr.startsWith(pre));
 }
 
-// ✅ Generates vanity mint ONLY in browser
+// ✅ Generate vanity mint ONLY in browser
 async function generateVanityMint(
   suffix: string,
   prefix: string,
@@ -86,9 +88,9 @@ async function generateVanityMint(
 }
 
 // =============================
-// MAIN PAGE
+// MAIN INNER PAGE
 // =============================
-export default function CreatePoolPage() {
+function CreatePoolPageInner() {
   const [walletReady, setWalletReady] = useState(false);
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [signTransaction, setSignTransaction] = useState<any>(null);
@@ -108,12 +110,8 @@ export default function CreatePoolPage() {
     if (typeof window !== "undefined") {
       import("@jup-ag/wallet-adapter").then((mod) => {
         const wallet = mod.useWallet();
-        if (wallet?.publicKey) {
-          setPublicKey(wallet.publicKey.toBase58());
-        }
-        if (wallet?.signTransaction) {
-          setSignTransaction(() => wallet.signTransaction);
-        }
+        if (wallet?.publicKey) setPublicKey(wallet.publicKey.toBase58());
+        if (wallet?.signTransaction) setSignTransaction(() => wallet.signTransaction);
         setWalletReady(true);
       });
     }
@@ -135,8 +133,8 @@ export default function CreatePoolPage() {
         }
 
         setIsLoading(true);
-        const { tokenLogo } = value;
-        if (!tokenLogo) {
+
+        if (!value.tokenLogo) {
           toast.error("Token logo is required");
           return;
         }
@@ -148,11 +146,11 @@ export default function CreatePoolPage() {
         // ✅ Lazy load crypto deps
         await loadCryptoDeps();
 
-        // Base64 logo
+        // Convert logo to Base64
         const reader = new FileReader();
         const base64File = await new Promise<string>((resolve) => {
           reader.onload = (e) => resolve(e.target?.result as string);
-          reader.readAsDataURL(tokenLogo);
+          reader.readAsDataURL(value.tokenLogo!);
         });
 
         // ✅ Create mint (vanity or random)
@@ -319,7 +317,7 @@ export default function CreatePoolPage() {
   );
 }
 
-// ✅ Simple SubmitButton
+// ✅ Submit Button
 function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
   return (
     <button
@@ -332,7 +330,7 @@ function SubmitButton({ isSubmitting }: { isSubmitting: boolean }) {
   );
 }
 
-// ✅ Simple success UI
+// ✅ Success UI
 function PoolCreationSuccess() {
   return (
     <div className="mt-6 p-4 border rounded text-center">
@@ -347,3 +345,6 @@ function PoolCreationSuccess() {
     </div>
   );
 }
+
+// ✅ FINAL EXPORT disables SSR COMPLETELY
+export default dynamic(() => Promise.resolve(CreatePoolPageInner), { ssr: false });
