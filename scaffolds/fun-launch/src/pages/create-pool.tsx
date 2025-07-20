@@ -1,23 +1,27 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
+import { useEffect, useMemo, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { z } from "zod";
 import Header from "../components/Header";
 import { useForm } from "@tanstack/react-form";
-import { Keypair, Transaction } from "@solana/web3.js";
-import { useWallet } from "@jup-ag/wallet-adapter";
 import { toast } from "sonner";
 
-// Vanity deps
-import bs58 from "bs58";
-import nacl from "tweetnacl";
-import { randomBytes } from "crypto";
+// ✅ Force Vercel to NOT prerender (avoids SSR build issues)
+export const dynamic = "force-dynamic";
 
-// -----------------------------
-//  SCHEMA & FORM VALIDATION
-// -----------------------------
+// ✅ Lazy load Solana + crypto libs on client only
+let Keypair: any;
+let Transaction: any;
+let bs58: any;
+let nacl: any;
+let randomBytes: any;
+
+// =============================
+// FORM VALIDATION
+// =============================
 const poolSchema = z.object({
   tokenName: z.string().min(3, "Token name must be at least 3 characters"),
   tokenSymbol: z.string().min(1, "Token symbol is required"),
@@ -34,9 +38,21 @@ interface FormValues {
   twitter?: string;
 }
 
-// ========================
-// VANITY MINT HELPERS
-// ========================
+// =============================
+// BROWSER-ONLY HELPER LOADER
+// =============================
+async function loadCryptoDeps() {
+  if (!Keypair) {
+    const solanaWeb3 = await import("@solana/web3.js");
+    Keypair = solanaWeb3.Keypair;
+    Transaction = solanaWeb3.Transaction;
+    bs58 = (await import("bs58")).default;
+    nacl = (await import("tweetnacl")).default;
+    randomBytes = (await import("crypto")).randomBytes;
+  }
+}
+
+// Vanity match
 function matchesVanity(address: string, suffix: string, prefix: string, caseInsensitive: boolean) {
   const addr = caseInsensitive ? address.toLowerCase() : address;
   const suf = caseInsensitive ? suffix.toLowerCase() : suffix;
@@ -44,13 +60,16 @@ function matchesVanity(address: string, suffix: string, prefix: string, caseInse
   return (suffix === "" || addr.endsWith(suf)) && (prefix === "" || addr.startsWith(pre));
 }
 
+// ✅ Generates vanity mint ONLY in browser
 async function generateVanityMint(
   suffix: string,
   prefix: string,
   onProgress?: (attempts: number) => void
-): Promise<Keypair> {
+): Promise<any> {
+  await loadCryptoDeps();
   let attempts = 0;
   const caseInsensitive = true;
+
   while (true) {
     const seed = randomBytes(32);
     const keypair = nacl.sign.keyPair.fromSeed(seed);
@@ -66,21 +85,39 @@ async function generateVanityMint(
   }
 }
 
-// ========================
-// MAIN CREATE POOL PAGE
-// ========================
+// =============================
+// MAIN PAGE
+// =============================
 export default function CreatePoolPage() {
-  const { publicKey, signTransaction } = useWallet();
-  const address = useMemo(() => publicKey?.toBase58(), [publicKey]);
+  const [walletReady, setWalletReady] = useState(false);
+  const [publicKey, setPublicKey] = useState<string | null>(null);
+  const [signTransaction, setSignTransaction] = useState<any>(null);
+
+  const address = useMemo(() => publicKey ?? undefined, [publicKey]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [poolCreated, setPoolCreated] = useState(false);
 
-  // Vanity mint settings
   const [useVanity, setUseVanity] = useState(false);
   const [vanityPrefix, setVanityPrefix] = useState("");
   const [vanitySuffix, setVanitySuffix] = useState("");
   const [vanityProgress, setVanityProgress] = useState(0);
+
+  // ✅ Load wallet adapter only in browser
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      import("@jup-ag/wallet-adapter").then((mod) => {
+        const wallet = mod.useWallet();
+        if (wallet?.publicKey) {
+          setPublicKey(wallet.publicKey.toBase58());
+        }
+        if (wallet?.signTransaction) {
+          setSignTransaction(() => wallet.signTransaction);
+        }
+        setWalletReady(true);
+      });
+    }
+  }, []);
 
   const form = useForm({
     defaultValues: {
@@ -92,8 +129,12 @@ export default function CreatePoolPage() {
     } as FormValues,
     onSubmit: async ({ value }) => {
       try {
-        setIsLoading(true);
+        if (!walletReady) {
+          toast.error("Wallet not ready yet.");
+          return;
+        }
 
+        setIsLoading(true);
         const { tokenLogo } = value;
         if (!tokenLogo) {
           toast.error("Token logo is required");
@@ -104,6 +145,9 @@ export default function CreatePoolPage() {
           return;
         }
 
+        // ✅ Lazy load crypto deps
+        await loadCryptoDeps();
+
         // Base64 logo
         const reader = new FileReader();
         const base64File = await new Promise<string>((resolve) => {
@@ -111,18 +155,19 @@ export default function CreatePoolPage() {
           reader.readAsDataURL(tokenLogo);
         });
 
-        // ✅ Decide how to create mint
-        let keyPair: Keypair;
-
+        // ✅ Create mint (vanity or random)
+        let keyPair: any;
         if (useVanity && (vanityPrefix || vanitySuffix)) {
           toast("🔍 Searching for vanity mint...");
-          keyPair = await generateVanityMint(vanitySuffix, vanityPrefix, (n) => setVanityProgress(n));
+          keyPair = await generateVanityMint(vanitySuffix, vanityPrefix, (n) =>
+            setVanityProgress(n)
+          );
           toast.success(`✅ Vanity mint found: ${keyPair.publicKey.toBase58()}`);
         } else {
           keyPair = Keypair.generate();
         }
 
-        // ✅ Upload metadata (logo + mint) to backend
+        // ✅ Upload metadata (logo + mint)
         const uploadResponse = await fetch("/api/upload", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -156,9 +201,9 @@ export default function CreatePoolPage() {
           toast.success("✅ Pool created successfully!");
           setPoolCreated(true);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error creating pool:", error);
-        toast.error(error instanceof Error ? error.message : "Failed to create pool");
+        toast.error(error.message ?? "Failed to create pool");
       } finally {
         setIsLoading(false);
       }
@@ -179,9 +224,9 @@ export default function CreatePoolPage() {
 
       <div className="min-h-screen bg-gradient-to-b text-white">
         <Header />
-
         <main className="container mx-auto px-4 py-10">
           <h1 className="text-4xl font-bold mb-6">Create Pool</h1>
+
           {!poolCreated ? (
             <form
               onSubmit={(e) => {
